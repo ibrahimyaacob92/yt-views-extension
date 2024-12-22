@@ -1,7 +1,10 @@
 import { BarChart2, Minimize } from "lucide-react"
 import { Bar, BarChart, Cell, Tooltip, YAxis } from "recharts"
 
-import type { ChannelData, VideoData } from "../types"
+import { CHART_CONFIG } from "../constants"
+import type { ChannelData } from "../types"
+import { formatViewCount, parseViewCount } from "../utils/formatters"
+import { VideoTooltip } from "./VideoTooltip"
 
 interface Props {
   data: ChannelData
@@ -9,92 +12,19 @@ interface Props {
   onToggle: () => void
 }
 
-interface CustomTooltipProps {
-  active?: boolean
-  payload?: Array<{ value: number; payload: VideoData }>
-}
-
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-  if (!active || !payload?.length) return null
-
-  const video = payload[0].payload
-  return (
-    <div
-      style={{
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
-        padding: "8px",
-        border: "1px solid rgba(255, 255, 255, 0.4)",
-        borderRadius: "8px",
-        fontSize: "12px",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        boxShadow: "0 4px 24px -1px rgba(0, 0, 0, 0.1)",
-        width: "320px",
-        display: "flex",
-        gap: "12px",
-        alignItems: "flex-start"
-      }}>
-      {video.thumbnail && (
-        <div
-          style={{
-            width: "120px",
-            flexShrink: 0,
-            borderRadius: "6px",
-            overflow: "hidden",
-            aspectRatio: "16/9",
-            backgroundColor: "rgba(0, 0, 0, 0.05)",
-            border: "1px solid rgba(255, 255, 255, 0.2)"
-          }}>
-          <img
-            src={video.thumbnail}
-            alt={video.title}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block"
-            }}
-          />
-        </div>
-      )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontWeight: "bold",
-            color: "rgba(0, 0, 0, 0.87)",
-            marginBottom: "4px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            lineHeight: "1.2"
-          }}>
-          {video.title}
-        </div>
-        <div style={{ color: "rgba(0, 0, 0, 0.6)" }}>
-          {video.views} • {video.uploadTime}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
   if (!data.isChannel) return null
 
-  const maxWidth = Math.max(380, window.innerWidth * 0.5)
-  const chartWidth = maxWidth - 16
+  const maxWidth = Math.max(
+    CHART_CONFIG.MIN_WIDTH,
+    window.innerWidth * CHART_CONFIG.WIDTH_RATIO
+  )
+  const chartWidth =
+    maxWidth - CHART_CONFIG.PADDING.LEFT - CHART_CONFIG.PADDING.RIGHT
 
   const chartData = [...data.videos].reverse().map((video) => ({
     ...video,
-    viewCount: parseInt(
-      video.views
-        .toLowerCase()
-        .replace("k views", "000")
-        .replace("m views", "000000")
-        .replace(/[^0-9]/g, "")
-    )
+    viewCount: parseViewCount(video.views)
   }))
 
   const maxViews = Math.max(...chartData.map((d) => d.viewCount))
@@ -102,16 +32,6 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
     chartData.reduce((sum, d) => sum + d.viewCount, 0) / chartData.length
   )
   const quarterViews = Math.round(maxViews / 4)
-
-  const formatViewCount = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`
-    }
-    return value
-  }
 
   const handleBarClick = (entry: any) => {
     console.log("clicked", entry)
@@ -126,8 +46,8 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
         position: "fixed",
         bottom: "20px",
         right: "20px",
-        width: isExpanded ? maxWidth : "48px",
-        height: isExpanded ? "160px" : "48px",
+        width: isExpanded ? maxWidth : CHART_CONFIG.COLLAPSED_SIZE,
+        height: isExpanded ? CHART_CONFIG.HEIGHT : CHART_CONFIG.COLLAPSED_SIZE,
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
@@ -174,21 +94,26 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
           </button>
           <BarChart
             width={chartWidth}
-            height={152}
+            height={CHART_CONFIG.HEIGHT}
             data={chartData}
             barGap={2}
-            margin={{ top: 0, right: 24, bottom: 0, left: 28 }}>
+            margin={{
+              top: CHART_CONFIG.PADDING.TOP,
+              right: CHART_CONFIG.PADDING.RIGHT,
+              bottom: CHART_CONFIG.PADDING.BOTTOM,
+              left: CHART_CONFIG.PADDING.LEFT
+            }}>
             <YAxis
               ticks={[0, quarterViews, avgViews, maxViews]}
               // @ts-ignore
-              tickFormatter={(value) => formatViewCount(value)}
+              tickFormatter={formatViewCount}
               tick={{ fontSize: 10, fill: "#1a1a1a" }}
               axisLine={false}
               tickLine={false}
               width={24}
             />
             <Tooltip
-              content={CustomTooltip}
+              content={VideoTooltip}
               cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
             />
             <Bar dataKey="viewCount" onClick={handleBarClick} cursor="pointer">

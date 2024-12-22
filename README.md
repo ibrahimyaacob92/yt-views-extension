@@ -1,33 +1,33 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# YouTube Channel Analytics
 
-## Getting Started
+A Chrome extension that provides a beautiful visualization of YouTube channel video statistics.
 
-First, run the development server:
+## Features
 
-```bash
-pnpm dev
-# or
-npm run dev
-```
+- Interactive bar chart showing video view counts
+- Video thumbnails and details on hover
+- Glassmorphism UI design
+- Minimizable interface
+- Real-time updates when sorting videos
+- Click to watch videos directly
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+## Installation
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
+1. Install from the Chrome Web Store
+2. Navigate to any YouTube channel's videos page
+3. See the analytics chart appear automatically
 
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
+## Usage
 
-## Making production build
+- Hover over bars to see video details
+- Click any bar to watch the video
+- Use the minimize button to toggle the chart
+- Works with all YouTube sorting options (Latest, Popular, Oldest)
 
-Run the following:
+## Privacy
 
-```bash
-pnpm build
-# or
-npm run build
-```
+This extension only accesses publicly available YouTube channel data and does not collect any personal information.
 
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
+## Development
 
-## Submit to the webstores
-
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+### Project Structure
