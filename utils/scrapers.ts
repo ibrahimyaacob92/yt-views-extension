@@ -28,15 +28,18 @@ export const getVideoList = () => {
 
     const allSpans = Array.from(metadataElement?.querySelectorAll("span") || [])
 
-    const videoUrl = titleElement?.getAttribute("href")
-      ? `https://www.youtube.com${titleElement.getAttribute("href")}`
-      : null
+    const videoUrl = titleElement?.closest("a")?.href || null
+
+    // Get thumbnail URL from the img element
+    const thumbnailElement = video.querySelector("img")
+    const thumbnail = thumbnailElement?.src || null
 
     return {
       title: titleElement?.textContent?.trim() || "",
       views: allSpans[0]?.textContent?.trim() || "",
       uploadTime: allSpans[1]?.textContent?.trim() || "",
-      videoUrl
+      videoUrl,
+      thumbnail
     }
   })
 }

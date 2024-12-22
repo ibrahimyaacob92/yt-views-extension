@@ -21,18 +21,60 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   return (
     <div
       style={{
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: "8px",
-        border: "1px solid rgba(255, 255, 255, 0.6)",
-        borderRadius: "4px",
+        border: "1px solid rgba(255, 255, 255, 0.4)",
+        borderRadius: "8px",
         fontSize: "12px",
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
-        boxShadow: "0 2px 12px -1px rgba(0, 0, 0, 0.1)"
+        boxShadow: "0 4px 24px -1px rgba(0, 0, 0, 0.1)",
+        width: "320px",
+        display: "flex",
+        gap: "12px",
+        alignItems: "flex-start"
       }}>
-      <div style={{ fontWeight: "bold", color: "#1a1a1a" }}>{video.title}</div>
-      <div style={{ color: "#333" }}>
-        {video.views} • {video.uploadTime}
+      {video.thumbnail && (
+        <div
+          style={{
+            width: "120px",
+            flexShrink: 0,
+            borderRadius: "6px",
+            overflow: "hidden",
+            aspectRatio: "16/9",
+            backgroundColor: "rgba(0, 0, 0, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.2)"
+          }}>
+          <img
+            src={video.thumbnail}
+            alt={video.title}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block"
+            }}
+          />
+        </div>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontWeight: "bold",
+            color: "rgba(0, 0, 0, 0.87)",
+            marginBottom: "4px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            lineHeight: "1.2"
+          }}>
+          {video.title}
+        </div>
+        <div style={{ color: "rgba(0, 0, 0, 0.6)" }}>
+          {video.views} • {video.uploadTime}
+        </div>
       </div>
     </div>
   )
@@ -59,6 +101,7 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
   const avgViews = Math.round(
     chartData.reduce((sum, d) => sum + d.viewCount, 0) / chartData.length
   )
+  const quarterViews = Math.round(maxViews / 4)
 
   const formatViewCount = (value: number) => {
     if (value >= 1000000) {
@@ -70,10 +113,10 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
     return value
   }
 
-  const handleBarClick = (data: VideoData) => {
-    const videoId = data.videoUrl
-    if (videoId) {
-      window.open(videoId, "_blank")
+  const handleBarClick = (entry: any) => {
+    console.log("clicked", entry)
+    if (entry?.payload?.videoUrl) {
+      window.open(entry.payload.videoUrl, "_blank")
     }
   }
 
@@ -136,7 +179,7 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
             barGap={2}
             margin={{ top: 0, right: 24, bottom: 0, left: 28 }}>
             <YAxis
-              ticks={[0, avgViews, maxViews]}
+              ticks={[0, quarterViews, avgViews, maxViews]}
               // @ts-ignore
               tickFormatter={(value) => formatViewCount(value)}
               tick={{ fontSize: 10, fill: "#1a1a1a" }}
@@ -148,14 +191,9 @@ export const ChannelInfo = ({ data, isExpanded, onToggle }: Props) => {
               content={CustomTooltip}
               cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
             />
-            <Bar dataKey="viewCount" onClick={handleBarClick}>
+            <Bar dataKey="viewCount" onClick={handleBarClick} cursor="pointer">
               {chartData.map((entry, index) => (
-                <Cell
-                  key={index}
-                  fill="#1a73e8"
-                  style={{ cursor: "pointer" }}
-                  opacity={0.85}
-                />
+                <Cell key={index} fill="#1a73e8" opacity={0.85} />
               ))}
             </Bar>
           </BarChart>

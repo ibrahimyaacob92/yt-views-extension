@@ -3,6 +3,7 @@ export interface VideoData {
   views: string
   uploadTime: string
   videoUrl: string
+  thumbnail: string
 }
 
 export interface ChannelData {
